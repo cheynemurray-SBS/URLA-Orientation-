@@ -293,6 +293,16 @@
     scroll-margin-top: 64px;
   }
 
+  /* When embedded cross-origin in Canvas (see JS below), this document
+     must own its own scrolling rather than relying on the parent frame,
+     since browsers block cross-origin parent-scroll-into-view. */
+  html.embedded-scroll,
+  html.embedded-scroll body{
+    height: 100vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .group-head{
     display:flex;
     align-items: flex-end;
@@ -788,14 +798,24 @@
         });
       }
 
-      // Canvas often embeds this page in an auto-height iframe with no
-      // internal scrollbar of its own -- the outer Canvas page scrolls
-      // instead. In that case window.scrollTo() here has nothing to move,
-      // so the tabs would look broken. Only take over scrolling ourselves
-      // when this document actually has scrollable overflow; otherwise
-      // let the native <a href="#..."> fragment navigation happen, since
-      // browsers natively scroll the ancestor frame into view for that,
-      // which works correctly even inside an auto-height iframe.
+      // When Canvas embeds this page, it's a CROSS-ORIGIN iframe (this page
+      // lives on github.io, Canvas lives on a different domain). Browsers
+      // intentionally block a frame from scrolling its parent into view
+      // across an origin boundary -- that's a security restriction, not a
+      // bug, and it means native <a href="#..."> fragment navigation can
+      // never bring a section into view here if the outer Canvas page is
+      // the one doing the scrolling. So instead of relying on the parent
+      // frame at all, force this document to own its own scrolling: when
+      // embedded in an iframe, cap it to the iframe's own viewport height
+      // with internal overflow, so window.scrollTo() below always has a
+      // real scroll context to act on, entirely within this same-origin
+      // document. This works identically on desktop and mobile.
+      var inIframe = false;
+      try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
+      if (inIframe) {
+        document.documentElement.classList.add('embedded-scroll');
+      }
+
       function hasScrollableOverflow(){
         var doc = document.documentElement;
         return doc.scrollHeight > doc.clientHeight + 4;
