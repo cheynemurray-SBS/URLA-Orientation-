@@ -14,7 +14,7 @@
     --ink: #211C19;
     --muted: #6B645D;
     --paper: #FFFFFF;
-    --paper-soft: #F5F5F5;
+    --paper-soft: #FFFFFF;
     --line: #E6E1DA;
     --radius: 14px;
     --serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
@@ -234,7 +234,7 @@
     position: sticky;
     top: 0;
     z-index: 20;
-    background: rgba(245,245,245,0.94);
+    background: rgba(255,255,255,0.94);
     backdrop-filter: saturate(180%) blur(10px);
     border-bottom: 1px solid var(--line);
   }
@@ -455,9 +455,10 @@
     object-fit: contain;
   }
 
-  @media (max-width: 560px){
+  @media (max-width: 680px){
     .hero{ padding: 44px 0 32px; }
-    .hero-content{ padding-right: 74px; }
+    .hero-logo{ width: 44px; height: 44px; right: 20px; bottom: 58px; padding: 6px; }
+    .hero-content{ padding-right: 92px; }
     .group-head{ flex-direction: column; align-items: flex-start; }
     footer .wrap{ flex-direction: column; align-items: flex-start; }
   }
