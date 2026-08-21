@@ -498,9 +498,9 @@
 
   <nav class="subnav">
     <div class="wrap subnav-inner">
-      <button class="tab active" data-target="core"><span class="num">1</span> Core Tools</button>
-      <button class="tab" data-target="new"><span class="num">2</span> New Tools</button>
-      <button class="tab" data-target="support"><span class="num">3</span> Support</button>
+      <a class="tab active" href="#core" data-target="core"><span class="num">1</span> Core Tools</a>
+      <a class="tab" href="#new" data-target="new"><span class="num">2</span> New Tools</a>
+      <a class="tab" href="#support" data-target="support"><span class="num">3</span> Support</a>
     </div>
   </nav>
 
@@ -788,13 +788,32 @@
         });
       }
 
+      // Canvas often embeds this page in an auto-height iframe with no
+      // internal scrollbar of its own -- the outer Canvas page scrolls
+      // instead. In that case window.scrollTo() here has nothing to move,
+      // so the tabs would look broken. Only take over scrolling ourselves
+      // when this document actually has scrollable overflow; otherwise
+      // let the native <a href="#..."> fragment navigation happen, since
+      // browsers natively scroll the ancestor frame into view for that,
+      // which works correctly even inside an auto-height iframe.
+      function hasScrollableOverflow(){
+        var doc = document.documentElement;
+        return doc.scrollHeight > doc.clientHeight + 4;
+      }
+
       tabs.forEach(function(tab){
         tab.addEventListener('click', function(e){
-          e.preventDefault();
           var id = tab.getAttribute('data-target');
           var target = document.getElementById(id);
           if (!target) return;
           setActive(id);
+
+          if (!hasScrollableOverflow()){
+            // Let the native anchor navigation proceed untouched.
+            return;
+          }
+
+          e.preventDefault();
           clickLock = true;
           clearTimeout(clickLockTimer);
           scrollToSection(target);
